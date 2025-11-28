@@ -58,17 +58,33 @@ SafeBites transforms the dining experience by centralizing and personalizing die
 
 ## 🚀 Quick Start
 
+### **Prerequisites**
+- Any modern web browser (Chrome, Firefox, Safari, Edge)
+- Python 3 (for Option 3) or Node.js (for Option 2)
+
+### **Setup for First Time Users**
+
+If you cloned this repository, you may need to make the startup script executable:
+
+```bash
+chmod +x start.sh
+```
+
+*(This is only needed once after cloning)*
+
+---
+
 ### **Option 1: One-Command Launch** ⚡
 ```bash
 ./start.sh
 ```
-*Automatically starts server and opens browser*  
-*(File is already executable - no chmod needed!)*
+*Automatically starts server and opens browser*
 
-### **Option 2: NPM Start**
+### **Option 2: NPM Start** (Recommended - No Setup Required)
 ```bash
 npm start
 ```
+*Easiest option - no permissions needed!*
 
 ### **Option 3: Manual Python Server**
 ```bash
@@ -143,7 +159,7 @@ Password: admin123
 ## 📂 Project Structure
 
 ```
-/436/
+/safebites/
 ├── index.html          # Main app structure with 5 screens
 ├── styles.css          # 500+ lines of responsive styling
 ├── script.js           # 600+ lines of app logic + data
@@ -248,32 +264,6 @@ SafeBites addresses real-world scenarios:
 
 ---
 
-## 🎤 Presentation Tips
-
-### **2-Minute Pitch**
-1. **Hook** (15s): "59% of restaurants lack allergen info—putting millions at risk"
-2. **Problem** (30s): Walk through Alex's pre-SafeBites dining anxiety
-3. **Solution** (45s): Live demo of color-coded filtering
-4. **Impact** (30s): Show confidence + safety + independence
-
-### **Demonstration Flow**
-✓ Start at welcome screen  
-✓ Quick login (use demo credentials)  
-✓ Select 2-3 restrictions  
-✓ Show restaurant safe counts  
-✓ Click Chipotle for menu  
-✓ Compare safe vs. unsafe items  
-✓ Open detailed modal  
-✓ Highlight cross-contamination notice  
-
-### **Key Talking Points**
-- **Personalization**: Adapts to each user's unique needs
-- **Transparency**: Full ingredient + nutrition disclosure
-- **Confidence**: Color-coded system reduces decision anxiety
-- **Scalability**: Framework supports any restaurant/cuisine
-
----
-
 ## 🐛 Troubleshooting
 
 | Issue | Solution |
@@ -283,29 +273,6 @@ SafeBites addresses real-world scenarios:
 | Styles broken | Verify all files in same directory |
 | Server won't start | Check port 8000 not in use: `lsof -i :8000` |
 | Safe count wrong | Clear browser cache and reload |
-
----
-
-## 🚀 Future Roadmap
-
-### Phase 2 (MVP)
-- [ ] Real restaurant API integration
-- [ ] User account creation
-- [ ] Favorites & history tracking
-- [ ] Push notifications for menu updates
-
-### Phase 3 (Scale)
-- [ ] Machine learning allergen detection
-- [ ] Photo recognition of dishes
-- [ ] Social sharing & reviews
-- [ ] Reservation integration
-- [ ] Multi-language support
-
-### Phase 4 (Monetization)
-- [ ] Restaurant premium listings
-- [ ] Nutritionist partnerships
-- [ ] B2B restaurant dashboard
-- [ ] White-label solutions
 
 ---
 
@@ -337,8 +304,6 @@ MIT License - feel free to use for educational purposes
 
 **Made with ❤️ for safer dining experiences**
 
-⭐ Star this project if you found it helpful!
-
-[View Demo](#-quick-start) • [Report Bug](#-troubleshooting) • [Request Feature](#-future-roadmap)
+[View Demo](#-quick-start)
 
 </div>
