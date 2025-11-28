@@ -490,6 +490,11 @@ function initializeEventListeners() {
 function showScreen(screenName) {
     Object.values(screens).forEach(screen => screen.classList.remove('active'));
     screens[screenName].classList.add('active');
+    
+    // Update user email display when showing profile screen
+    if (screenName === 'profile' && appState.currentUser) {
+        document.getElementById('userEmail').textContent = appState.currentUser.email;
+    }
 }
 
 function showModal(modalName) {

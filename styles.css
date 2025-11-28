@@ -297,7 +297,18 @@ body {
     box-shadow: var(--shadow);
 }
 
+.profile-header {
+    margin-bottom: 10px;
+}
+
 .profile-card h2 {
+    margin-bottom: 5px;
+}
+
+.user-email {
+    color: var(--primary-color);
+    font-size: 14px;
+    font-weight: 600;
     margin-bottom: 10px;
 }
 
