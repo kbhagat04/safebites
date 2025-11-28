@@ -1,0 +1,12 @@
+{
+  "name": "safebites",
+  "version": "1.0.0",
+  "description": "SafeBites - Adaptive Restaurant Menu Filtering System",
+  "scripts": {
+    "start": "npx http-server -p 8000 -o",
+    "serve": "python3 -m http.server 8000"
+  },
+  "keywords": ["safebites", "allergies", "restaurant", "menu", "dietary-restrictions"],
+  "author": "",
+  "license": "MIT"
+}
