@@ -2,6 +2,7 @@
 const appState = {
     currentUser: null,
     currentLocation: 'College Station, TX',
+    searchRadius: 5, // miles
     userRestrictions: [],
     currentRestaurant: null,
     restaurants: []
@@ -25,8 +26,7 @@ const restaurantsData = [
                 ingredients: ['chicken', 'rice', 'black beans', 'peppers', 'onions', 'lettuce', 'avocado', 'lime', 'cilantro'],
                 allergens: [],
                 nutrition: { calories: 630, protein: 42, carbs: 71, fat: 19 },
-                crossContamination: 'Prepared in a facility that handles wheat, dairy, and soy',
-                safetyLevel: 'safe'
+                crossContamination: 'Prepared in shared equipment. May contain traces of wheat, dairy, and soy',
             },
             {
                 id: 102,
@@ -36,8 +36,7 @@ const restaurantsData = [
                 ingredients: ['steak', 'flour tortilla', 'rice', 'pinto beans', 'cheese', 'sour cream', 'tomato', 'lime'],
                 allergens: ['gluten', 'dairy'],
                 nutrition: { calories: 850, protein: 48, carbs: 94, fat: 31 },
-                crossContamination: 'Contains dairy and gluten',
-                safetyLevel: 'unsafe'
+                crossContamination: 'Contains gluten and dairy',
             },
             {
                 id: 103,
@@ -47,8 +46,7 @@ const restaurantsData = [
                 ingredients: ['peppers', 'onions', 'rice', 'black beans', 'corn', 'lettuce', 'avocado', 'tomato'],
                 allergens: [],
                 nutrition: { calories: 540, protein: 16, carbs: 81, fat: 18 },
-                crossContamination: 'May contain traces of dairy and gluten from shared equipment',
-                safetyLevel: 'caution'
+                crossContamination: 'Prepared in shared equipment. May contain traces of wheat, dairy, and soy',
             },
             {
                 id: 104,
@@ -58,8 +56,7 @@ const restaurantsData = [
                 ingredients: ['pork', 'corn tortilla', 'tomatillo', 'onions', 'cilantro', 'lime'],
                 allergens: [],
                 nutrition: { calories: 480, protein: 32, carbs: 42, fat: 20 },
-                crossContamination: 'Prepared in a facility that handles wheat and dairy',
-                safetyLevel: 'safe'
+                crossContamination: 'Prepared in shared equipment. May contain traces of wheat and dairy',
             },
             {
                 id: 105,
@@ -69,8 +66,7 @@ const restaurantsData = [
                 ingredients: ['flour tortilla', 'cheese', 'sour cream', 'avocado'],
                 allergens: ['gluten', 'dairy'],
                 nutrition: { calories: 720, protein: 28, carbs: 58, fat: 42 },
-                crossContamination: 'Contains dairy and gluten',
-                safetyLevel: 'unsafe'
+                crossContamination: 'Contains gluten and dairy',
             },
             {
                 id: 106,
@@ -80,8 +76,37 @@ const restaurantsData = [
                 ingredients: ['tofu', 'brown rice', 'black beans', 'peppers', 'tomato', 'onions', 'spices'],
                 allergens: ['soy'],
                 nutrition: { calories: 560, protein: 18, carbs: 78, fat: 17 },
-                crossContamination: 'Contains soy, may contain traces of wheat',
-                safetyLevel: 'unsafe'
+                crossContamination: 'Contains soy. Prepared in shared equipment with wheat and dairy',
+            },
+            {
+                id: 107,
+                name: 'Barbacoa Burrito Bowl',
+                description: 'Tender barbacoa beef, cilantro-lime rice, pinto beans, fresh tomato salsa, cheese, and lettuce',
+                price: 11.75,
+                ingredients: ['beef', 'rice', 'pinto beans', 'tomato', 'cheese', 'lettuce', 'lime', 'cilantro'],
+                allergens: ['dairy'],
+                nutrition: { calories: 750, protein: 46, carbs: 68, fat: 30 },
+                crossContamination: 'Contains dairy',
+            },
+            {
+                id: 108,
+                name: 'Chips and Salsa',
+                description: 'Fresh tortilla chips with tomato salsa',
+                price: 2.95,
+                ingredients: ['corn chips', 'tomato', 'onion', 'cilantro', 'jalapeño', 'lime'],
+                allergens: [],
+                nutrition: { calories: 290, protein: 4, carbs: 40, fat: 13 },
+                crossContamination: 'Prepared in facility that handles dairy',
+            },
+            {
+                id: 109,
+                name: 'Kid\'s Build Your Own',
+                description: 'Choice of chicken or cheese quesadilla with rice and beans',
+                price: 6.95,
+                ingredients: ['flour tortilla', 'chicken', 'cheese', 'rice', 'beans'],
+                allergens: ['gluten', 'dairy'],
+                nutrition: { calories: 475, protein: 22, carbs: 55, fat: 16 },
+                crossContamination: 'Contains gluten and dairy',
             }
         ]
     },
@@ -102,7 +127,6 @@ const restaurantsData = [
                 allergens: ['dairy'],
                 nutrition: { calories: 190, protein: 8, carbs: 14, fat: 11 },
                 crossContamination: 'Contains dairy, prepared with shared equipment',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 202,
@@ -113,7 +137,6 @@ const restaurantsData = [
                 allergens: ['gluten', 'dairy'],
                 nutrition: { calories: 350, protein: 13, carbs: 54, fat: 9 },
                 crossContamination: 'Contains gluten and dairy',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 203,
@@ -124,7 +147,6 @@ const restaurantsData = [
                 allergens: ['gluten', 'dairy'],
                 nutrition: { calories: 680, protein: 17, carbs: 74, fat: 32 },
                 crossContamination: 'Contains gluten and dairy',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 204,
@@ -135,7 +157,6 @@ const restaurantsData = [
                 allergens: ['dairy'],
                 nutrition: { calories: 470, protein: 26, carbs: 49, fat: 18 },
                 crossContamination: 'Contains dairy in ranch dressing',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 205,
@@ -146,7 +167,46 @@ const restaurantsData = [
                 allergens: [],
                 nutrition: { calories: 230, protein: 3, carbs: 23, fat: 15 },
                 crossContamination: 'May contain traces from shared fryers',
-                safetyLevel: 'caution'
+            },
+            {
+                id: 206,
+                name: 'Chalupa Supreme',
+                description: 'Seasoned beef, lettuce, tomatoes, sour cream, and cheese in a fried chalupa shell',
+                price: 3.99,
+                ingredients: ['fried shell', 'beef', 'lettuce', 'tomato', 'sour cream', 'cheese'],
+                allergens: ['gluten', 'dairy'],
+                nutrition: { calories: 360, protein: 13, carbs: 30, fat: 21 },
+                crossContamination: 'Contains gluten and dairy',
+            },
+            {
+                id: 207,
+                name: 'Cheesy Gordita Crunch',
+                description: 'Seasoned beef, cheese, lettuce, and ranch in a flatbread with a crunchy taco shell inside',
+                price: 4.49,
+                ingredients: ['flatbread', 'beef', 'cheese', 'lettuce', 'ranch', 'corn shell'],
+                allergens: ['gluten', 'dairy', 'eggs'],
+                nutrition: { calories: 490, protein: 19, carbs: 38, fat: 29 },
+                crossContamination: 'Contains gluten, dairy, and eggs',
+            },
+            {
+                id: 208,
+                name: 'Mexican Pizza',
+                description: 'Seasoned beef, refried beans, pizza sauce, cheese, and tomatoes between two crispy tortillas',
+                price: 4.99,
+                ingredients: ['flour tortilla', 'beef', 'refried beans', 'pizza sauce', 'cheese', 'tomato'],
+                allergens: ['gluten', 'dairy'],
+                nutrition: { calories: 540, protein: 20, carbs: 47, fat: 30 },
+                crossContamination: 'Contains gluten and dairy',
+            },
+            {
+                id: 209,
+                name: 'Nacho Fries',
+                description: 'Crispy fries topped with nacho cheese sauce',
+                price: 2.49,
+                ingredients: ['potatoes', 'nacho cheese', 'spices'],
+                allergens: ['dairy'],
+                nutrition: { calories: 320, protein: 4, carbs: 38, fat: 17 },
+                crossContamination: 'Contains dairy, fried in shared oil',
             }
         ]
     },
@@ -167,7 +227,6 @@ const restaurantsData = [
                 allergens: ['gluten', 'dairy', 'eggs'],
                 nutrition: { calories: 820, protein: 48, carbs: 78, fat: 34 },
                 crossContamination: 'Contains gluten, dairy, and eggs',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 302,
@@ -178,7 +237,6 @@ const restaurantsData = [
                 allergens: ['gluten', 'dairy', 'eggs'],
                 nutrition: { calories: 740, protein: 42, carbs: 64, fat: 32 },
                 crossContamination: 'Contains gluten, dairy, and eggs',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 303,
@@ -189,7 +247,6 @@ const restaurantsData = [
                 allergens: ['gluten', 'dairy', 'eggs'],
                 nutrition: { calories: 890, protein: 52, carbs: 72, fat: 38 },
                 crossContamination: 'Contains gluten, dairy, and eggs',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 304,
@@ -200,7 +257,6 @@ const restaurantsData = [
                 allergens: [],
                 nutrition: { calories: 120, protein: 4, carbs: 24, fat: 2 },
                 crossContamination: 'Prepared in a facility that handles dairy and gluten',
-                safetyLevel: 'safe'
             },
             {
                 id: 305,
@@ -211,7 +267,36 @@ const restaurantsData = [
                 allergens: ['gluten', 'dairy', 'eggs', 'fish'],
                 nutrition: { calories: 280, protein: 8, carbs: 18, fat: 20 },
                 crossContamination: 'Contains gluten, dairy, eggs, and fish (anchovies in dressing)',
-                safetyLevel: 'unsafe'
+            },
+            {
+                id: 306,
+                name: 'BLT Sandwich',
+                description: 'Applewood bacon, lettuce, tomato, and mayo on toasted sourdough',
+                price: 7.99,
+                ingredients: ['sourdough bread', 'bacon', 'lettuce', 'tomato', 'mayo'],
+                allergens: ['gluten', 'eggs'],
+                nutrition: { calories: 620, protein: 24, carbs: 58, fat: 32 },
+                crossContamination: 'Contains gluten and eggs',
+            },
+            {
+                id: 307,
+                name: 'Tomato Basil Soup',
+                description: 'Creamy tomato soup with fresh basil',
+                price: 4.99,
+                ingredients: ['tomato', 'cream', 'basil', 'garlic', 'onion', 'vegetable broth'],
+                allergens: ['dairy'],
+                nutrition: { calories: 240, protein: 6, carbs: 32, fat: 10 },
+                crossContamination: 'Contains dairy',
+            },
+            {
+                id: 308,
+                name: 'Chips & Salsa',
+                description: 'House-made potato chips with fresh salsa',
+                price: 3.49,
+                ingredients: ['potato', 'tomato', 'onion', 'cilantro', 'jalapeño', 'lime'],
+                allergens: [],
+                nutrition: { calories: 180, protein: 2, carbs: 26, fat: 8 },
+                crossContamination: 'Prepared in shared facility',
             }
         ]
     },
@@ -232,7 +317,6 @@ const restaurantsData = [
                 allergens: ['sesame'],
                 nutrition: { calories: 620, protein: 42, carbs: 68, fat: 18 },
                 crossContamination: 'Contains sesame',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 402,
@@ -243,7 +327,6 @@ const restaurantsData = [
                 allergens: ['sesame', 'dairy'],
                 nutrition: { calories: 580, protein: 18, carbs: 72, fat: 24 },
                 crossContamination: 'Contains sesame and dairy',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 403,
@@ -254,7 +337,6 @@ const restaurantsData = [
                 allergens: ['dairy', 'sesame'],
                 nutrition: { calories: 720, protein: 48, carbs: 64, fat: 28 },
                 crossContamination: 'Contains dairy and sesame',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 404,
@@ -265,7 +347,6 @@ const restaurantsData = [
                 allergens: ['gluten'],
                 nutrition: { calories: 680, protein: 38, carbs: 72, fat: 24 },
                 crossContamination: 'Contains gluten',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 405,
@@ -276,7 +357,36 @@ const restaurantsData = [
                 allergens: ['sesame'],
                 nutrition: { calories: 480, protein: 16, carbs: 68, fat: 18 },
                 crossContamination: 'Contains sesame',
-                safetyLevel: 'unsafe'
+            },
+            {
+                id: 406,
+                name: 'Harissa Honey Chicken Bowl',
+                description: 'Spicy harissa honey chicken, basmati rice, crazy feta, hummus, corn, and pickled onions',
+                price: 12.45,
+                ingredients: ['chicken', 'basmati rice', 'feta', 'hummus', 'corn', 'pickled onions', 'harissa', 'honey'],
+                allergens: ['dairy', 'sesame'],
+                nutrition: { calories: 690, protein: 44, carbs: 72, fat: 22 },
+                crossContamination: 'Contains dairy and sesame',
+            },
+            {
+                id: 407,
+                name: 'Chicken + Cauliflower Rice Bowl',
+                description: 'Grilled chicken, riced cauliflower, SuperGreens, roasted vegetables, and lemon herb tahini',
+                price: 11.95,
+                ingredients: ['chicken', 'cauliflower rice', 'kale', 'romaine', 'roasted vegetables', 'tahini', 'lemon'],
+                allergens: ['sesame'],
+                nutrition: { calories: 440, protein: 38, carbs: 32, fat: 18 },
+                crossContamination: 'Contains sesame',
+            },
+            {
+                id: 408,
+                name: 'Mini Pita Chips & Hummus',
+                description: 'Warm pita chips with classic hummus',
+                price: 4.95,
+                ingredients: ['pita chips', 'chickpeas', 'tahini', 'lemon', 'garlic', 'olive oil'],
+                allergens: ['gluten', 'sesame'],
+                nutrition: { calories: 320, protein: 10, carbs: 42, fat: 14 },
+                crossContamination: 'Contains gluten and sesame',
             }
         ]
     },
@@ -297,7 +407,6 @@ const restaurantsData = [
                 allergens: ['gluten', 'dairy', 'eggs'],
                 nutrition: { calories: 520, protein: 24, carbs: 52, fat: 24 },
                 crossContamination: 'Contains gluten, dairy, and eggs',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 502,
@@ -308,7 +417,6 @@ const restaurantsData = [
                 allergens: ['gluten', 'dairy'],
                 nutrition: { calories: 380, protein: 28, carbs: 42, fat: 12 },
                 crossContamination: 'Contains gluten and dairy',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 503,
@@ -319,7 +427,6 @@ const restaurantsData = [
                 allergens: ['dairy'],
                 nutrition: { calories: 280, protein: 8, carbs: 38, fat: 12 },
                 crossContamination: 'Contains dairy',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 504,
@@ -330,7 +437,6 @@ const restaurantsData = [
                 allergens: ['gluten', 'soy', 'dairy', 'eggs'],
                 nutrition: { calories: 420, protein: 16, carbs: 44, fat: 20 },
                 crossContamination: 'Contains gluten, soy, dairy, and eggs',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 505,
@@ -341,7 +447,6 @@ const restaurantsData = [
                 allergens: ['gluten', 'dairy'],
                 nutrition: { calories: 580, protein: 22, carbs: 48, fat: 32 },
                 crossContamination: 'Contains gluten and dairy',
-                safetyLevel: 'unsafe'
             },
             {
                 id: 506,
@@ -352,7 +457,126 @@ const restaurantsData = [
                 allergens: ['dairy'],
                 nutrition: { calories: 640, protein: 16, carbs: 52, fat: 42 },
                 crossContamination: 'Contains dairy',
-                safetyLevel: 'unsafe'
+            },
+            {
+                id: 507,
+                name: 'Rotisserie Chicken Taco',
+                description: 'Herb-marinated rotisserie chicken, goat cheese, tomato, and chimichurri on corn tortilla',
+                price: 4.75,
+                ingredients: ['corn tortilla', 'chicken', 'goat cheese', 'tomato', 'chimichurri', 'herbs'],
+                allergens: ['dairy'],
+                nutrition: { calories: 340, protein: 26, carbs: 28, fat: 14 },
+                crossContamination: 'Contains dairy',
+            },
+            {
+                id: 508,
+                name: 'Cuban Pig Taco',
+                description: 'Slow-roasted pork, ham, Swiss cheese, pickles, mustard, and mojo sauce on flour tortilla',
+                price: 4.95,
+                ingredients: ['flour tortilla', 'pork', 'ham', 'swiss cheese', 'pickles', 'mustard', 'mojo sauce'],
+                allergens: ['gluten', 'dairy'],
+                nutrition: { calories: 460, protein: 28, carbs: 36, fat: 22 },
+                crossContamination: 'Contains gluten and dairy',
+            }
+        ]
+    },
+    {
+        id: 6,
+        name: 'Blaze Pizza',
+        cuisine: 'Fast-Fire Pizza',
+        distance: '1.5 miles',
+        rating: 4.5,
+        image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=300&fit=crop',
+        menu: [
+            {
+                id: 601,
+                name: 'Build Your Own Pizza - 11"',
+                description: 'Choose your sauce, cheese, and unlimited toppings on our signature dough',
+                price: 9.95,
+                ingredients: ['pizza dough', 'tomato sauce', 'mozzarella', 'toppings of choice'],
+                allergens: ['gluten', 'dairy'],
+                nutrition: { calories: 710, protein: 32, carbs: 86, fat: 26 },
+                crossContamination: 'Contains gluten and dairy',
+            },
+            {
+                id: 602,
+                name: 'BBQ Chicken Pizza',
+                description: 'BBQ sauce, mozzarella, chicken, red onions, cilantro, and BBQ drizzle',
+                price: 10.95,
+                ingredients: ['pizza dough', 'bbq sauce', 'mozzarella', 'chicken', 'red onions', 'cilantro'],
+                allergens: ['gluten', 'dairy'],
+                nutrition: { calories: 820, protein: 42, carbs: 92, fat: 30 },
+                crossContamination: 'Contains gluten and dairy',
+            },
+            {
+                id: 603,
+                name: 'Meat Eater Pizza',
+                description: 'Red sauce, mozzarella, pepperoni, crumbled meatballs, Italian sausage, and bacon',
+                price: 11.95,
+                ingredients: ['pizza dough', 'tomato sauce', 'mozzarella', 'pepperoni', 'meatballs', 'sausage', 'bacon'],
+                allergens: ['gluten', 'dairy', 'eggs'],
+                nutrition: { calories: 980, protein: 48, carbs: 88, fat: 48 },
+                crossContamination: 'Contains gluten, dairy, and eggs',
+            },
+            {
+                id: 604,
+                name: 'Veg Out Pizza',
+                description: 'Red sauce, mozzarella, mushrooms, bell peppers, red onions, tomatoes, olives, and arugula',
+                price: 10.45,
+                ingredients: ['pizza dough', 'tomato sauce', 'mozzarella', 'mushrooms', 'bell peppers', 'red onions', 'tomatoes', 'olives', 'arugula'],
+                allergens: ['gluten', 'dairy'],
+                nutrition: { calories: 720, protein: 28, carbs: 94, fat: 26 },
+                crossContamination: 'Contains gluten and dairy',
+            },
+            {
+                id: 605,
+                name: 'White Top Pizza',
+                description: 'Garlic pesto sauce, mozzarella, ricotta, bacon, and arugula',
+                price: 11.45,
+                ingredients: ['pizza dough', 'pesto', 'mozzarella', 'ricotta', 'bacon', 'arugula', 'garlic'],
+                allergens: ['gluten', 'dairy'],
+                nutrition: { calories: 860, protein: 38, carbs: 82, fat: 42 },
+                crossContamination: 'Contains gluten and dairy',
+            },
+            {
+                id: 606,
+                name: 'Gluten-Free Margherita Pizza',
+                description: 'Red sauce, mozzarella, cherry tomatoes, and basil on gluten-free crust',
+                price: 12.95,
+                ingredients: ['gluten-free dough', 'tomato sauce', 'mozzarella', 'cherry tomatoes', 'basil', 'olive oil'],
+                allergens: ['dairy'],
+                nutrition: { calories: 680, protein: 26, carbs: 78, fat: 28 },
+                crossContamination: 'Contains dairy, prepared in shared kitchen with gluten',
+            },
+            {
+                id: 607,
+                name: 'Caesar Salad',
+                description: 'Romaine, parmesan, croutons, and Caesar dressing',
+                price: 7.95,
+                ingredients: ['romaine lettuce', 'parmesan', 'croutons', 'caesar dressing', 'lemon'],
+                allergens: ['gluten', 'dairy', 'eggs', 'fish'],
+                nutrition: { calories: 360, protein: 12, carbs: 24, fat: 24 },
+                crossContamination: 'Contains gluten, dairy, eggs, and fish',
+            },
+            {
+                id: 608,
+                name: 'Fresh Fruit Cup',
+                description: 'Seasonal fresh fruit medley',
+                price: 4.95,
+                ingredients: ['strawberries', 'pineapple', 'cantaloupe', 'grapes', 'blueberries'],
+                allergens: [],
+                nutrition: { calories: 80, protein: 2, carbs: 20, fat: 0 },
+                crossContamination: 'Prepared in facility that handles nuts',
+            },
+            {
+                id: 609,
+                name: 'Garlic Knots',
+                description: 'Warm garlic knots with marinara dipping sauce',
+                price: 4.95,
+                ingredients: ['pizza dough', 'garlic', 'butter', 'parmesan', 'parsley', 'marinara sauce'],
+                allergens: ['gluten', 'dairy'],
+                nutrition: { calories: 420, protein: 12, carbs: 58, fat: 16 },
+                crossContamination: 'Contains gluten and dairy',
             }
         ]
     }
@@ -367,7 +591,11 @@ const allergenKeywords = {
     'eggs': ['egg', 'mayo', 'mayonnaise'],
     'soy': ['soy', 'tofu', 'edamame', 'soy sauce', 'tempeh', 'miso'],
     'fish': ['salmon', 'tuna', 'cod', 'fish', 'ahi'],
-    'sesame': ['sesame', 'tahini']
+    'sesame': ['sesame', 'tahini'],
+    'vegetarian': ['chicken', 'beef', 'steak', 'pork', 'bacon', 'ham', 'sausage', 'pepperoni', 'salami', 'turkey', 'lamb', 'duck', 'meat', 'meatball', 'carnitas', 'barbacoa', 'chorizo', 'prosciutto'],
+    'vegan': ['chicken', 'beef', 'steak', 'pork', 'bacon', 'ham', 'sausage', 'pepperoni', 'salami', 'turkey', 'lamb', 'duck', 'meat', 'meatball', 'carnitas', 'barbacoa', 'chorizo', 'prosciutto', 'milk', 'cheese', 'cream', 'butter', 'yogurt', 'whey', 'casein', 'lactose', 'cheddar', 'parmesan', 'feta', 'goat cheese', 'sour cream', 'egg', 'mayo', 'mayonnaise', 'honey'],
+    'halal': ['pork', 'bacon', 'ham', 'pepperoni', 'salami', 'prosciutto', 'lard'],
+    'kosher': ['pork', 'bacon', 'ham', 'pepperoni', 'salami', 'prosciutto', 'shellfish', 'shrimp', 'crab', 'lobster', 'clam', 'mussel', 'oyster']
 };
 
 // DOM Elements
@@ -424,11 +652,17 @@ function initializeEventListeners() {
 
     // Location modal
     document.getElementById('allowLocationBtn').addEventListener('click', () => {
+        // Get selected radius
+        const radiusSelect = document.getElementById('searchRadius');
+        appState.searchRadius = parseInt(radiusSelect.value);
+        
         simulateLocationDetection();
         hideModal('location');
         if (appState.restaurants.length === 0) {
             loadMainScreen();
         } else {
+            processRestaurantData();
+            displayRestaurants();
             updateLocationDisplay();
         }
     });
@@ -507,6 +741,9 @@ function hideModal(modalName) {
 
 // Location Functions
 function showLocationModal() {
+    // Set current radius in dropdown
+    const radiusSelect = document.getElementById('searchRadius');
+    radiusSelect.value = appState.searchRadius.toString();
     showModal('location');
 }
 
@@ -517,7 +754,7 @@ function simulateLocationDetection() {
 }
 
 function updateLocationDisplay() {
-    document.getElementById('currentLocation').textContent = appState.currentLocation;
+    document.getElementById('currentLocation').textContent = `${appState.currentLocation} (${appState.searchRadius} mile radius)`;
 }
 
 // Profile Functions
@@ -553,16 +790,26 @@ function loadMainScreen() {
 }
 
 function processRestaurantData() {
-    appState.restaurants = restaurantsData.map(restaurant => {
-        const safeItemsCount = restaurant.menu.filter(item => 
-            isItemSafe(item, appState.userRestrictions)
-        ).length;
-        
-        return {
-            ...restaurant,
-            safeItemsCount
-        };
-    });
+    appState.restaurants = restaurantsData
+        .filter(restaurant => {
+            // Filter restaurants by search radius
+            const distance = parseFloat(restaurant.distance);
+            return distance <= appState.searchRadius;
+        })
+        .map(restaurant => {
+            const safeItemsCount = restaurant.menu.filter(item => 
+                isItemSafe(item, appState.userRestrictions)
+            ).length;
+            const cautionItemsCount = restaurant.menu.filter(item => 
+                isItemCaution(item, appState.userRestrictions)
+            ).length;
+            
+            return {
+                ...restaurant,
+                safeItemsCount,
+                cautionItemsCount
+            };
+        });
 }
 
 function isItemSafe(item, restrictions) {
@@ -570,6 +817,13 @@ function isItemSafe(item, restrictions) {
     
     const safetyLevel = determineSafetyLevel(item, restrictions);
     return safetyLevel === 'safe';
+}
+
+function isItemCaution(item, restrictions) {
+    if (restrictions.length === 0) return false;
+    
+    const safetyLevel = determineSafetyLevel(item, restrictions);
+    return safetyLevel === 'caution';
 }
 
 function determineSafetyLevel(item, restrictions) {
@@ -602,9 +856,61 @@ function determineSafetyLevel(item, restrictions) {
     return 'safe';
 }
 
+function getRestrictionViolations(item, restrictions) {
+    const violations = [];
+    const restrictionLabels = {
+        'vegetarian': 'Contains meat',
+        'vegan': 'Not vegan',
+        'halal': 'Not halal',
+        'kosher': 'Not kosher',
+        'nuts': 'Contains nuts',
+        'dairy': 'Contains dairy',
+        'gluten': 'Contains gluten',
+        'shellfish': 'Contains shellfish',
+        'eggs': 'Contains eggs',
+        'soy': 'Contains soy',
+        'fish': 'Contains fish',
+        'sesame': 'Contains sesame'
+    };
+    
+    for (const restriction of restrictions) {
+        // Check direct allergen match
+        if (item.allergens.includes(restriction)) {
+            if (!violations.includes(restrictionLabels[restriction])) {
+                violations.push(restrictionLabels[restriction]);
+            }
+            continue;
+        }
+        
+        // Check ingredients for keywords
+        const keywords = allergenKeywords[restriction] || [];
+        for (const ingredient of item.ingredients) {
+            for (const keyword of keywords) {
+                if (ingredient.toLowerCase().includes(keyword.toLowerCase())) {
+                    if (!violations.includes(restrictionLabels[restriction])) {
+                        violations.push(restrictionLabels[restriction]);
+                    }
+                    break;
+                }
+            }
+        }
+    }
+    
+    return violations;
+}
+
 function displayRestaurants() {
     const grid = document.getElementById('restaurantGrid');
+    const countEl = document.getElementById('restaurantCount');
     grid.innerHTML = '';
+    
+    if (appState.restaurants.length === 0) {
+        grid.innerHTML = '<p style="color: var(--text-light); grid-column: 1/-1; text-align: center; padding: 40px;">No restaurants found within your search radius. Try increasing the radius.</p>';
+        countEl.textContent = '0 restaurants found';
+        return;
+    }
+    
+    countEl.textContent = `${appState.restaurants.length} restaurant${appState.restaurants.length !== 1 ? 's' : ''} found`;
     
     appState.restaurants.forEach(restaurant => {
         const card = createRestaurantCard(restaurant);
@@ -631,7 +937,10 @@ function createRestaurantCard(restaurant) {
                 </div>
             </div>
             <p class="restaurant-info">📍 ${restaurant.distance}</p>
-            <span class="safe-items-badge">${restaurant.safeItemsCount} safe items</span>
+            <div class="items-badges">
+                <span class="safe-items-badge">${restaurant.safeItemsCount} safe</span>
+                ${restaurant.cautionItemsCount > 0 ? `<span class="caution-items-badge">${restaurant.cautionItemsCount} caution</span>` : ''}
+            </div>
         </div>
     `;
     
@@ -666,8 +975,11 @@ function createMenuItem(item, safetyLevel) {
     div.onclick = () => showItemDetails(item, safetyLevel);
     
     let warningHTML = '';
-    if (safetyLevel === 'unsafe' && item.allergens.length > 0) {
-        warningHTML = `<div class="allergen-warning">⚠️ Contains: ${item.allergens.join(', ')}</div>`;
+    if (safetyLevel === 'unsafe') {
+        const violations = getRestrictionViolations(item, appState.userRestrictions);
+        if (violations.length > 0) {
+            warningHTML = `<div class="allergen-warning">⚠️ ${violations.join(', ')}</div>`;
+        }
     } else if (safetyLevel === 'caution') {
         warningHTML = `<div class="cross-contamination">⚠️ ${item.crossContamination}</div>`;
     }
