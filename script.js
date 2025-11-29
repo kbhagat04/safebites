@@ -5,7 +5,9 @@ const appState = {
     searchRadius: 5, // miles
     userRestrictions: [],
     currentRestaurant: null,
-    restaurants: []
+    restaurants: [],
+    currentItem: null,
+    excludedIngredients: {} // Format: { itemId: [ingredient1, ingredient2, ...] }
 };
 
 // Restaurant and Menu Data
@@ -609,7 +611,8 @@ const screens = {
 
 const modals = {
     location: document.getElementById('locationModal'),
-    item: document.getElementById('itemModal')
+    item: document.getElementById('itemModal'),
+    customize: document.getElementById('customizeModal')
 };
 
 // Initialize App
@@ -710,6 +713,25 @@ function initializeEventListeners() {
     // Close item modal
     document.getElementById('closeModal').addEventListener('click', () => {
         hideModal('item');
+        // Refresh menu to show any customization changes
+        if (appState.currentRestaurant) {
+            displayMenuItems(appState.currentRestaurant.menu);
+        }
+    });
+    
+    // Close customize modal
+    document.getElementById('closeCustomizeModal').addEventListener('click', () => {
+        hideModal('customize');
+    });
+    
+    // Apply customization
+    document.getElementById('applyCustomizationBtn').addEventListener('click', () => {
+        applyCustomization();
+    });
+    
+    // Reset customization
+    document.getElementById('resetCustomizationBtn').addEventListener('click', () => {
+        resetCustomization();
     });
 
     // Click outside modal to close
@@ -963,16 +985,28 @@ function displayMenuItems(menu) {
     container.innerHTML = '';
     
     menu.forEach(item => {
-        const safetyLevel = determineSafetyLevel(item, appState.userRestrictions);
-        const menuItem = createMenuItem(item, safetyLevel);
+        // Check if item has customizations and use customized version
+        const displayItem = getCustomizedItem(item);
+        const safetyLevel = determineSafetyLevel(displayItem, appState.userRestrictions);
+        const menuItem = createMenuItem(displayItem, safetyLevel, item.id);
         container.appendChild(menuItem);
     });
 }
 
-function createMenuItem(item, safetyLevel) {
+function createMenuItem(item, safetyLevel, originalItemId) {
     const div = document.createElement('div');
     div.className = `menu-item ${safetyLevel}`;
-    div.onclick = () => showItemDetails(item, safetyLevel);
+    const hasCustomization = appState.excludedIngredients[originalItemId || item.id]?.length > 0;
+    
+    // Use original item ID for onclick to ensure we track customizations correctly
+    const itemId = originalItemId || item.id;
+    div.onclick = () => {
+        // Always get fresh customized item when clicking
+        const originalItem = appState.currentRestaurant.menu.find(i => i.id === itemId);
+        const displayItem = getCustomizedItem(originalItem);
+        const currentSafety = determineSafetyLevel(displayItem, appState.userRestrictions);
+        showItemDetails(originalItem, currentSafety);
+    };
     
     let warningHTML = '';
     if (safetyLevel === 'unsafe') {
@@ -987,7 +1021,7 @@ function createMenuItem(item, safetyLevel) {
     div.innerHTML = `
         <div class="menu-item-header">
             <div>
-                <h3>${item.name}</h3>
+                <h3>${item.name}${hasCustomization ? ' 🔧' : ''}</h3>
                 <p class="menu-item-description">${item.description}</p>
             </div>
             <span class="safety-badge ${safetyLevel}">${safetyLevel.charAt(0).toUpperCase() + safetyLevel.slice(1)}</span>
@@ -1004,6 +1038,9 @@ function createMenuItem(item, safetyLevel) {
 
 function showItemDetails(item, safetyLevel) {
     const details = document.getElementById('itemDetails');
+    const excludedForItem = appState.excludedIngredients[item.id] || [];
+    const hasCustomization = excludedForItem.length > 0;
+    const displayIngredients = item.ingredients.filter(ing => !excludedForItem.includes(ing));
     
     details.innerHTML = `
         <div class="item-detail-header">
@@ -1011,6 +1048,12 @@ function showItemDetails(item, safetyLevel) {
             <span class="safety-badge ${safetyLevel}">${safetyLevel.charAt(0).toUpperCase() + safetyLevel.slice(1)}</span>
             <p class="item-detail-price">$${item.price.toFixed(2)}</p>
         </div>
+        
+        ${hasCustomization ? `
+            <div class="customization-notice">
+                🔧 Customized: ${excludedForItem.map(ing => `No ${ing}`).join(', ')}
+            </div>
+        ` : ''}
         
         <div class="item-detail-section">
             <h4>Description</h4>
@@ -1020,7 +1063,7 @@ function showItemDetails(item, safetyLevel) {
         <div class="item-detail-section">
             <h4>Ingredients</h4>
             <ul class="ingredients-list">
-                ${item.ingredients.map(ing => `<li class="ingredient-tag">${ing}</li>`).join('')}
+                ${displayIngredients.map(ing => `<li class="ingredient-tag">${ing}</li>`).join('')}
             </ul>
         </div>
         
@@ -1061,12 +1104,126 @@ function showItemDetails(item, safetyLevel) {
                 ${item.crossContamination}
             </div>
         </div>
+        
+        <button id="customizeItemBtn" class="btn-primary full-width" style="margin-top: 20px;">🔧 Customize Item</button>
     `;
     
     showModal('item');
+    
+    // Add customize button handler
+    document.getElementById('customizeItemBtn').onclick = () => {
+        showCustomizationModal(item);
+    };
 }
 
 // Utility Functions
 function formatRestriction(restriction) {
     return restriction.charAt(0).toUpperCase() + restriction.slice(1).replace('-', ' ');
+}
+
+// Customization Functions
+function showCustomizationModal(item) {
+    appState.currentItem = item;
+    const content = document.getElementById('customizeContent');
+    const excludedForItem = appState.excludedIngredients[item.id] || [];
+    
+    content.innerHTML = `
+        <div class="customize-item-header">
+            <h4>${item.name}</h4>
+            <p class="customize-subtitle">Tap ingredients to remove them</p>
+        </div>
+        <div class="ingredients-customize-grid">
+            ${item.ingredients.map(ingredient => `
+                <label class="ingredient-customize-option">
+                    <input type="checkbox" 
+                           class="ingredient-checkbox" 
+                           value="${ingredient}"
+                           ${excludedForItem.includes(ingredient) ? 'checked' : ''}>
+                    <span class="ingredient-customize-label">
+                        <span class="ingredient-name">${ingredient}</span>
+                        <span class="remove-indicator">Remove</span>
+                    </span>
+                </label>
+            `).join('')}
+        </div>
+    `;
+    
+    showModal('customize');
+}
+
+function applyCustomization() {
+    const item = appState.currentItem;
+    if (!item) return;
+    
+    const checkboxes = document.querySelectorAll('.ingredient-checkbox:checked');
+    const excluded = Array.from(checkboxes).map(cb => cb.value);
+    
+    if (excluded.length > 0) {
+        appState.excludedIngredients[item.id] = excluded;
+    } else {
+        delete appState.excludedIngredients[item.id];
+    }
+    
+    hideModal('customize');
+    
+    // Refresh the item details with updated customization
+    const customizedItem = getCustomizedItem(item);
+    const safetyLevel = determineSafetyLevel(customizedItem, appState.userRestrictions);
+    showItemDetails(item, safetyLevel);
+    
+    // Refresh the menu display to show updated safety badges
+    if (appState.currentRestaurant) {
+        displayMenuItems(appState.currentRestaurant.menu);
+    }
+}
+
+function resetCustomization() {
+    const item = appState.currentItem;
+    if (!item) return;
+    
+    delete appState.excludedIngredients[item.id];
+    
+    // Uncheck all checkboxes
+    document.querySelectorAll('.ingredient-checkbox').forEach(cb => {
+        cb.checked = false;
+    });
+}
+
+function getCustomizedItem(item) {
+    const excluded = appState.excludedIngredients[item.id] || [];
+    if (excluded.length === 0) return item;
+    
+    // Filter ingredients
+    const remainingIngredients = item.ingredients.filter(ing => !excluded.includes(ing));
+    
+    // Recalculate allergens based on remaining ingredients
+    const recalculatedAllergens = [];
+    
+    // Check each allergen keyword against remaining ingredients
+    for (const [allergen, keywords] of Object.entries(allergenKeywords)) {
+        // Check if any remaining ingredient contains allergen keywords
+        const hasAllergen = remainingIngredients.some(ingredient => 
+            keywords.some(keyword => ingredient.toLowerCase().includes(keyword.toLowerCase()))
+        );
+        
+        // Also keep allergen if it's in the original allergens list and ingredient still present
+        const originallyHasAllergen = item.allergens.includes(allergen) && hasAllergen;
+        
+        if (hasAllergen || originallyHasAllergen) {
+            if (!recalculatedAllergens.includes(allergen)) {
+                recalculatedAllergens.push(allergen);
+            }
+        }
+    }
+    
+    // Create a copy with filtered ingredients and recalculated allergens
+    const customizedItem = {
+        ...item,
+        ingredients: remainingIngredients,
+        allergens: recalculatedAllergens,
+        isCustomized: true,
+        excludedIngredients: excluded
+    };
+    
+    return customizedItem;
 }
