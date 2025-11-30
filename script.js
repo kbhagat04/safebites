@@ -2,7 +2,7 @@
 const appState = {
     currentUser: null,
     currentLocation: 'College Station, TX',
-    searchRadius: 5, // miles
+    searchRadius: 1.5, // miles
     userRestrictions: [],
     currentRestaurant: null,
     restaurants: [],
@@ -657,7 +657,7 @@ function initializeEventListeners() {
     document.getElementById('allowLocationBtn').addEventListener('click', () => {
         // Get selected radius
         const radiusSelect = document.getElementById('searchRadius');
-        appState.searchRadius = parseInt(radiusSelect.value);
+        appState.searchRadius = parseFloat(radiusSelect.value);
         
         simulateLocationDetection();
         hideModal('location');
