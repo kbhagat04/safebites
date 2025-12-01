@@ -785,7 +785,7 @@ function updateLocationDisplay() {
 // Profile Functions
 function saveUserProfile() {
     const checkboxes = document.querySelectorAll('.restriction-checkbox input:checked');
-    appState.userRestrictions = Array.from(checkboxes).map(cb => cb.value);
+    appState.userRestrictions = Array.from(checkboxes).map(cb => cb.value.toLowerCase());
 }
 
 function displayActiveRestrictions() {
@@ -830,11 +830,16 @@ function processRestaurantData() {
                 const customizedItem = getCustomizedItem(item);
                 return isItemCaution(customizedItem, appState.userRestrictions);
             }).length;
+            const unsafeItemsCount = restaurant.menu.filter(item => {
+                const customizedItem = getCustomizedItem(item);
+                return isItemUnsafe(customizedItem, appState.userRestrictions);
+            }).length;
             
             return {
                 ...restaurant,
                 safeItemsCount,
-                cautionItemsCount
+                cautionItemsCount,
+                unsafeItemsCount,
             };
         });
 }
@@ -853,14 +858,25 @@ function isItemCaution(item, restrictions) {
     return safetyLevel === 'caution';
 }
 
+function isItemUnsafe(item, restrictions) {
+    if(restrictions.length === 0) return false;
+
+    const safetyLevel = determineSafetyLevel(item, restrictions);
+    return safetyLevel === 'unsafe';
+}
+
 function determineSafetyLevel(item, restrictions) {
     if (restrictions.length === 0) {
         return 'safe';
     }
     
+    const itemAllergensLower = item.allergens.map(a => a.toLowerCase());
+
     // Check for direct allergen matches
-    for (const restriction of restrictions) {
-        if (item.allergens.includes(restriction)) {
+    for (const restrictionRaw of restrictions) {
+
+        const restriction = restrictionRaw.toLowerCase();
+        if (itemAllergensLower.includes(restriction)) {
             return 'unsafe';
         }
         
@@ -900,9 +916,15 @@ function getRestrictionViolations(item, restrictions) {
         'sesame': 'Contains sesame'
     };
     
-    for (const restriction of restrictions) {
+    const itemAllergensLower = item.allergens.map(a => a.toLowerCase());
+
+    for (const restrictionRaw of restrictions) {
         // Check direct allergen match
-        if (item.allergens.includes(restriction)) {
+
+        const restriction = restrictionRaw.toLowerCase();
+        const label = restrictionLabels[restriction] || `Contains ${restriction}`;
+
+        if (itemAllergensLower.includes(restriction)) {
             if (!violations.includes(restrictionLabels[restriction])) {
                 violations.push(restrictionLabels[restriction]);
             }
@@ -914,8 +936,8 @@ function getRestrictionViolations(item, restrictions) {
         for (const ingredient of item.ingredients) {
             for (const keyword of keywords) {
                 if (ingredient.toLowerCase().includes(keyword.toLowerCase())) {
-                    if (!violations.includes(restrictionLabels[restriction])) {
-                        violations.push(restrictionLabels[restriction]);
+                    if (!violations.includes(label)) {
+                        violations.push(label);
                     }
                     break;
                 }
@@ -970,6 +992,7 @@ function createRestaurantCard(restaurant) {
             <div class="items-badges">
                 <span class="safe-items-badge">${restaurant.safeItemsCount} safe</span>
                 ${restaurant.cautionItemsCount > 0 ? `<span class="caution-items-badge">${restaurant.cautionItemsCount} caution</span>` : ''}
+                ${restaurant.unsafeItemsCount > 0 ? `<span class="unsafe-items-badge">${restaurant.unsafeItemsCount} unsafe</span>` : ''}
             </div>
         </div>
     `;
