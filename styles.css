@@ -542,6 +542,16 @@ body {
     font-weight: 600;
 }
 
+.unsafe-items-badge {
+    display: inline-block;
+    background: var(--unsafe-color);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
 /* Menu Screen */
 .menu-container {
     max-width: 900px;
