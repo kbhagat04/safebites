@@ -708,6 +708,7 @@ function initializeEventListeners() {
     // Back button from menu
     document.getElementById('backBtn').addEventListener('click', () => {
         showScreen('main');
+        displayRestaurants();
     });
 
     // Close item modal
@@ -717,6 +718,8 @@ function initializeEventListeners() {
         if (appState.currentRestaurant) {
             displayMenuItems(appState.currentRestaurant.menu);
         }
+        // Recalculate restaurant data for main screen
+        processRestaurantData();
     });
     
     // Close customize modal
@@ -819,12 +822,14 @@ function processRestaurantData() {
             return distance <= appState.searchRadius;
         })
         .map(restaurant => {
-            const safeItemsCount = restaurant.menu.filter(item => 
-                isItemSafe(item, appState.userRestrictions)
-            ).length;
-            const cautionItemsCount = restaurant.menu.filter(item => 
-                isItemCaution(item, appState.userRestrictions)
-            ).length;
+            const safeItemsCount = restaurant.menu.filter(item => {
+                const customizedItem = getCustomizedItem(item);
+                return isItemSafe(customizedItem, appState.userRestrictions);
+            }).length;
+            const cautionItemsCount = restaurant.menu.filter(item => {
+                const customizedItem = getCustomizedItem(item);
+                return isItemCaution(customizedItem, appState.userRestrictions);
+            }).length;
             
             return {
                 ...restaurant,
@@ -922,6 +927,9 @@ function getRestrictionViolations(item, restrictions) {
 }
 
 function displayRestaurants() {
+    // Always recalculate restaurant data before displaying to reflect customizations
+    processRestaurantData();
+    
     const grid = document.getElementById('restaurantGrid');
     const countEl = document.getElementById('restaurantCount');
     grid.innerHTML = '';
@@ -1201,18 +1209,18 @@ function getCustomizedItem(item) {
     
     // Check each allergen keyword against remaining ingredients
     for (const [allergen, keywords] of Object.entries(allergenKeywords)) {
+        // Skip dietary preferences (vegetarian, vegan, halal, kosher) - only check food allergens
+        if (['vegetarian', 'vegan', 'halal', 'kosher'].includes(allergen)) {
+            continue;
+        }
+        
         // Check if any remaining ingredient contains allergen keywords
         const hasAllergen = remainingIngredients.some(ingredient => 
             keywords.some(keyword => ingredient.toLowerCase().includes(keyword.toLowerCase()))
         );
         
-        // Also keep allergen if it's in the original allergens list and ingredient still present
-        const originallyHasAllergen = item.allergens.includes(allergen) && hasAllergen;
-        
-        if (hasAllergen || originallyHasAllergen) {
-            if (!recalculatedAllergens.includes(allergen)) {
-                recalculatedAllergens.push(allergen);
-            }
+        if (hasAllergen) {
+            recalculatedAllergens.push(allergen);
         }
     }
     
